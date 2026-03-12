@@ -448,7 +448,7 @@
       if (num !== 1) { flashCell(idx, 'wrong'); return; }
       status = 'playing';
       startTime = Date.now();
-      $hint.style.display = 'none';
+      $hint.style.visibility = 'hidden';
       $btnQuit.style.display = '';
       timerRAF = requestAnimationFrame(tickTimer);
       ym(107322341, 'reachGoal', 'start');
@@ -511,9 +511,11 @@
     $historyList.innerHTML = history.map(h => {
       const r = getRating(h.time);
       const isBest = h.time === best;
-      const timeStr = new Date(h.date).toLocaleTimeString('ru', {hour:'2-digit', minute:'2-digit'});
+      const d = new Date(h.date);
+      const timeStr = d.toLocaleTimeString('ru', {hour:'2-digit', minute:'2-digit'});
+      const dateStr = d.toLocaleDateString('ru', {day:'2-digit', month:'2-digit'});
       return `<div class="history-row">
-        <span style="color:var(--muted);font-size:11px">${timeStr}</span>
+        <span style="color:var(--muted);font-size:11px">${dateStr} ${timeStr}</span>
         <span class="history-time-val" style="color:${isBest ? 'var(--accent)' : 'var(--text)'}">
           ${isBest ? '★ ' : ''}${fmtTime(h.time)}
         </span>
@@ -525,7 +527,7 @@
   const resetUI = () => {
     $statNext.textContent = '—'; $statNext.className = 'stat-value dim';
     $statTime.textContent = '—'; $statTime.className = 'stat-value dim';
-    $hint.style.display = '';
+    $hint.style.visibility = 'visible';
     $resultBanner.style.display = 'none';
     closeHistory();
     $progressFill.style.width = '0%';
