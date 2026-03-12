@@ -132,28 +132,65 @@
     }
     .btn-restart:active { opacity: .8; }
 
-    /* ─── HISTORY ─── */
-    .history {
-      margin: 8px 14px 0;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      overflow: hidden;
-      flex-shrink: 0;
-      background: var(--surface);
+    /* ─── HISTORY BOTTOM SHEET ─── */
+    .sheet-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
     }
-    .history-header {
-      padding: 8px 14px;
-      font-size: 9px;
-      letter-spacing: 3px;
-      color: var(--muted);
+    .sheet-overlay.open { opacity: 1; pointer-events: all; }
+    .sheet {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      z-index: 101;
+      transition: transform .3s cubic-bezier(.32,.72,0,1);
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+    }
+    .sheet.open { transform: translateX(-50%) translateY(0); }
+    .sheet-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 12px auto 0;
+    }
+    .sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px 12px;
       border-bottom: 1px solid var(--border);
-      text-transform: uppercase;
+    }
+    .sheet-title { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+    .sheet-close {
+      background: #f4f2ee; border: none; border-radius: 50%;
+      width: 28px; height: 28px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; font-size: 14px; color: var(--muted);
+      transition: background .15s;
+    }
+    .sheet-close:active { background: var(--border); }
+    .sheet-body {
+      max-height: 55vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding-bottom: 24px;
     }
     .history-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 7px 14px;
+      padding: 11px 16px;
       border-bottom: 1px solid #f0ece6;
       font-size: 13px;
     }
@@ -303,10 +340,17 @@
     <button class="btn-restart" id="btnPlayAgain">ЕЩЁ РАЗ</button>
   </div>
 
-  <!-- HISTORY -->
-  <div class="history" id="historyPanel" style="display:none">
-    <div class="history-header">История</div>
-    <div id="historyList"></div>
+  <!-- HISTORY BOTTOM SHEET -->
+  <div class="sheet-overlay" id="sheetOverlay"></div>
+  <div class="sheet" id="historySheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">История</div>
+      <button class="sheet-close" id="btnSheetClose">✕</button>
+    </div>
+    <div class="sheet-body">
+      <div id="historyList"></div>
+    </div>
   </div>
 
   <!-- GRID -->
@@ -368,7 +412,9 @@
   const $resultBanner = document.getElementById('resultBanner');
   const $resultText   = document.getElementById('resultText');
   const $progressFill = document.getElementById('progressFill');
-  const $historyPanel = document.getElementById('historyPanel');
+  const $historySheet  = document.getElementById('historySheet');
+  const $sheetOverlay  = document.getElementById('sheetOverlay');
+  const $btnSheetClose = document.getElementById('btnSheetClose');
   const $historyList  = document.getElementById('historyList');
   const $btnHistory   = document.getElementById('btnHistory');
   const $btnRestart   = document.getElementById('btnRestart');
@@ -481,7 +527,7 @@
     $statTime.textContent = '—'; $statTime.className = 'stat-value dim';
     $hint.style.display = '';
     $resultBanner.style.display = 'none';
-    $historyPanel.style.display = 'none';
+    closeHistory();
     $progressFill.style.width = '0%';
     $progressFill.classList.remove('complete');
     $btnQuit.style.display = 'none';
@@ -503,12 +549,20 @@
     ym(107322341, 'reachGoal', 'quit');
   });
 
-  $btnHistory.addEventListener('click', () => {
-    showingHistory = !showingHistory;
-    $historyPanel.style.display = showingHistory ? '' : 'none';
-    $btnHistory.style.background = showingHistory ? '#f0ece6' : 'transparent';
-    if (showingHistory) ym(107322341, 'reachGoal', 'history');
-  });
+  const openHistory = () => {
+    $historySheet.classList.add('open');
+    $sheetOverlay.classList.add('open');
+    $btnHistory.style.background = '#f0ece6';
+    ym(107322341, 'reachGoal', 'history');
+  };
+  const closeHistory = () => {
+    $historySheet.classList.remove('open');
+    $sheetOverlay.classList.remove('open');
+    $btnHistory.style.background = 'transparent';
+  };
+  $btnHistory.addEventListener('click', openHistory);
+  $btnSheetClose.addEventListener('click', closeHistory);
+  $sheetOverlay.addEventListener('click', closeHistory);
 
   $btnRestart.addEventListener('click', restart);
   $btnPlayAgain.addEventListener('click', restart);
