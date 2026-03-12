@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Таблица Шульте</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Unbounded:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #090910;
+      --surface:   #0f0f1a;
+      --border:    #1c1c2e;
+      --text:      #ddd8cc;
+      --muted:     #3a3a55;
+      --accent:    #00e87a;
+      --gold:      #f5c842;
+      --danger:    #ff3a5c;
+      --cell-bg:   #111120;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Share Tech Mono', monospace;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+      overflow: hidden;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ─── HEADER ─── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .header-title { line-height: 1.1; }
+    .header-sub  { font-size: 9px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; }
+    .header-name {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      color: var(--text);
+    }
+    .btn-icon {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      padding: 7px 13px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: 'Share Tech Mono', monospace;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-icon:active { border-color: var(--accent); color: var(--accent); }
+    .header-btns { display: flex; gap: 8px; }
+
+    /* ─── STATS BAR ─── */
+    .stats {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .stat { text-align: center; min-width: 70px; }
+    .stat-label { font-size: 8px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 3px; }
+    .stat-value { font-size: 22px; font-weight: bold; font-variant-numeric: tabular-nums; transition: color .3s; }
+    .stat-value.accent  { color: var(--accent); }
+    .stat-value.gold    { color: var(--gold); }
+    .stat-value.dim     { color: #2a2a40; }
+    .stat-value.muted   { color: var(--muted); }
+
+    /* ─── HINT ─── */
+    .hint {
+      text-align: center;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+      padding: 7px 0 0;
+      flex-shrink: 0;
+    }
+
+    /* ─── RESULT BANNER ─── */
+    .result-banner {
+      margin: 10px 14px 0;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: #0d1a0d;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+      border: 1px solid #1a3a1a;
+    }
+    .result-label { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
+    .result-value { font-size: 16px; font-weight: bold; }
+    .btn-restart {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #000;
+      background: var(--accent);
+      transition: opacity .2s;
+    }
+    .btn-restart:active { opacity: .8; }
+
+    /* ─── HISTORY ─── */
+    .history {
+      margin: 8px 14px 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .history-header {
+      padding: 8px 14px;
+      font-size: 9px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+    }
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 14px;
+      border-bottom: 1px solid #0e0e1a;
+      font-size: 13px;
+    }
+    .history-row:last-child { border-bottom: none; }
+    .history-time-val { font-size: 15px; font-weight: bold; }
+    .history-best { color: var(--muted); font-size: 11px; }
+
+    /* ─── GRID ─── */
+    .grid-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 10px 4px;
+      min-height: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 4px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .cell {
+      aspect-ratio: 1;
+      background: var(--cell-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(15px, 4.5vw, 22px);
+      font-weight: bold;
+      color: var(--text);
+      cursor: pointer;
+      transition: background .12s, border-color .12s, color .12s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      border: none;
+      padding: 0;
+    }
+    .cell.flash {
+      background: #00e87a22;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      transform: scale(0.91);
+    }
+    .cell.wrong {
+      background: #ff3a5c22;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      transform: scale(1.05);
+    }
+    .cell.done-state {
+      color: #1e1e30;
+      background: #0d0d18;
+      border: 1px solid #111120;
+      cursor: default;
+    }
+
+    /* ─── PROGRESS BAR ─── */
+    .progress-wrap {
+      padding: 6px 14px 10px;
+      flex-shrink: 0;
+    }
+    .progress-track {
+      height: 3px;
+      background: #181828;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--gold);
+      transition: width .3s ease, background .5s;
+    }
+    .progress-fill.complete { background: var(--accent); }
+
+    .footer-note {
+      text-align: center;
+      font-size: 9px;
+      color: #1c1c2e;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding-bottom: 10px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-title">
+      <div class="header-sub">таблица</div>
+      <div class="header-name">ШУЛЬТЕ</div>
+    </div>
+    <div class="header-btns">
+      <button class="btn-icon" id="btnHistory" style="display:none">📊</button>
+      <button class="btn-icon" id="btnRestart">↺</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">Следующее</div>
+      <div class="stat-value dim" id="statNext">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Время</div>
+      <div class="stat-value dim" id="statTime">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Рекорд</div>
+      <div class="stat-value muted" id="statBest">—</div>
+    </div>
+  </div>
+
+  <!-- HINT -->
+  <div class="hint" id="hint">нажмите 1 чтобы начать</div>
+
+  <!-- RESULT BANNER -->
+  <div class="result-banner" id="resultBanner" style="display:none">
+    <div>
+      <div class="result-label">Результат</div>
+      <div class="result-value" id="resultText"></div>
+    </div>
+    <button class="btn-restart" id="btnPlayAgain">ЕЩЁ РАЗ</button>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history" id="historyPanel" style="display:none">
+    <div class="history-header">История</div>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- GRID -->
+  <div class="grid-wrap">
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="footer-note">расширение периферийного зрения</div>
+</div>
+
+<script>
+  // ─── Telegram WebApp init ───
+  const tg = window.Telegram?.WebApp;
+  if (tg) {
+    tg.ready();
+    tg.expand();
+    tg.disableVerticalSwipes?.();
+  }
+
+  // ─── Utils ───
+  const shuffle = arr => {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  const fmtTime = ms => {
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    const rem = s % 60;
+    const cs = Math.floor((ms % 1000) / 10);
+    if (m > 0) return `${m}:${String(rem).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;
+    return `${rem}.${String(cs).padStart(2,'0')}с`;
+  };
+
+  const getRating = ms => {
+    const s = ms / 1000;
+    if (s < 25) return { label: '⚡ Феноменально', color: '#00e87a' };
+    if (s < 35) return { label: '🔥 Отлично',      color: '#7fff00' };
+    if (s < 45) return { label: '👍 Хорошо',       color: '#f5c842' };
+    if (s < 60) return { label: '🎯 Норма',         color: '#ff9500' };
+    return               { label: '💪 Тренируйся!', color: '#ff3a5c' };
+  };
+
+  // ─── State ───
+  let grid = [];
+  let next = 1;
+  let status = 'idle'; // idle | playing | done
+  let startTime = null;
+  let elapsed = 0;
+  let timerRAF = null;
+  let history = JSON.parse(localStorage.getItem('schulte_history') || '[]');
+  let showingHistory = false;
+
+  // ─── DOM ───
+  const $grid        = document.getElementById('grid');
+  const $statNext    = document.getElementById('statNext');
+  const $statTime    = document.getElementById('statTime');
+  const $statBest    = document.getElementById('statBest');
+  const $hint        = document.getElementById('hint');
+  const $resultBanner= document.getElementById('resultBanner');
+  const $resultText  = document.getElementById('resultText');
+  const $progressFill= document.getElementById('progressFill');
+  const $historyPanel= document.getElementById('historyPanel');
+  const $historyList = document.getElementById('historyList');
+  const $btnHistory  = document.getElementById('btnHistory');
+  const $btnRestart  = document.getElementById('btnRestart');
+  const $btnPlayAgain= document.getElementById('btnPlayAgain');
+
+  // ─── Render grid ───
+  const buildGrid = () => {
+    grid = shuffle(Array.from({length:25},(_,i)=>i+1));
+    $grid.innerHTML = '';
+    grid.forEach((num, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'cell';
+      btn.textContent = num;
+      btn.dataset.idx = idx;
+      btn.addEventListener('click', () => handleCell(num, idx));
+      $grid.appendChild(btn);
+    });
+  };
+
+  const cells = () => [...$grid.querySelectorAll('.cell')];
+
+  // ─── Timer loop ───
+  const tickTimer = () => {
+    elapsed = Date.now() - startTime;
+    $statTime.textContent = fmtTime(elapsed);
+    $statTime.className = 'stat-value gold';
+    timerRAF = requestAnimationFrame(tickTimer);
+  };
+
+  // ─── Handle cell tap ───
+  const handleCell = (num, idx) => {
+    if (status === 'done') return;
+
+    if (status === 'idle') {
+      if (num !== 1) {
+        // wrong first tap
+        flashCell(idx, 'wrong');
+        return;
+      }
+      status = 'playing';
+      startTime = Date.now();
+      $hint.style.display = 'none';
+      timerRAF = requestAnimationFrame(tickTimer);
+    }
+
+    if (num === next) {
+      flashCell(idx, 'flash');
+      next++;
+      updateNext();
+      updateProgress();
+
+      if (next > 25) {
+        finishGame();
+      }
+    } else {
+      flashCell(idx, 'wrong');
+    }
+  };
+
+  const flashCell = (idx, cls) => {
+    const cell = cells()[idx];
+    cell.classList.add(cls);
+    setTimeout(() => cell.classList.remove(cls), cls === 'flash' ? 280 : 380);
+  };
+
+  const updateNext = () => {
+    if (status === 'playing') {
+      $statNext.textContent = next;
+      $statNext.className = 'stat-value accent';
+    }
+  };
+
+  const updateProgress = () => {
+    const pct = ((next - 1) / 25) * 100;
+    $progressFill.style.width = pct + '%';
+    if (next > 25) $progressFill.classList.add('complete');
+  };
+
+  const finishGame = () => {
+    cancelAnimationFrame(timerRAF);
+    status = 'done';
+    const total = Date.now() - startTime;
+    elapsed = total;
+
+    $statTime.textContent = fmtTime(total);
+    $statTime.className = 'stat-value accent';
+    $statNext.textContent = '✓';
+    $statNext.className = 'stat-value accent';
+
+    // mark all cells done
+    cells().forEach(c => c.classList.add('done-state'));
+
+    // save history
+    history = [{ time: total, date: Date.now() }, ...history].slice(0, 10);
+    localStorage.setItem('schulte_history', JSON.stringify(history));
+
+    updateBest();
+    showResult(total);
+    renderHistory();
+
+    $btnHistory.style.display = '';
+    if (tg) tg.HapticFeedback?.notificationOccurred('success');
+  };
+
+  const showResult = total => {
+    const r = getRating(total);
+    $resultText.textContent = r.label;
+    $resultText.style.color = r.color;
+    $resultBanner.style.borderColor = r.color + '44';
+    $resultBanner.style.display = 'flex';
+  };
+
+  const updateBest = () => {
+    if (!history.length) return;
+    const best = Math.min(...history.map(h => h.time));
+    $statBest.textContent = fmtTime(best);
+    $statBest.className = 'stat-value muted';
+  };
+
+  const renderHistory = () => {
+    const best = history.length ? Math.min(...history.map(h => h.time)) : null;
+    $historyList.innerHTML = history.map((h, i) => {
+      const r = getRating(h.time);
+      const isBest = h.time === best;
+      const d = new Date(h.date);
+      const timeStr = d.toLocaleTimeString('ru', {hour:'2-digit', minute:'2-digit'});
+      return `
+        <div class="history-row">
+          <span style="color:var(--muted);font-size:11px">${timeStr}</span>
+          <span class="history-time-val" style="color:${isBest ? 'var(--accent)' : 'var(--text)'}">
+            ${isBest ? '★ ' : ''}${fmtTime(h.time)}
+          </span>
+          <span style="color:${r.color};font-size:11px">${r.label.split(' ').slice(1).join(' ')}</span>
+        </div>`;
+    }).join('');
+  };
+
+  // ─── Restart ───
+  const restart = () => {
+    cancelAnimationFrame(timerRAF);
+    next = 1;
+    status = 'idle';
+    elapsed = 0;
+    startTime = null;
+    showingHistory = false;
+
+    $statNext.textContent = '—';
+    $statNext.className = 'stat-value dim';
+    $statTime.textContent = '—';
+    $statTime.className = 'stat-value dim';
+    $hint.style.display = '';
+    $resultBanner.style.display = 'none';
+    $historyPanel.style.display = 'none';
+    $progressFill.style.width = '0%';
+    $progressFill.classList.remove('complete');
+
+    updateBest();
+    buildGrid();
+  };
+
+  // ─── Toggle history ───
+  $btnHistory.addEventListener('click', () => {
+    showingHistory = !showingHistory;
+    $historyPanel.style.display = showingHistory ? '' : 'none';
+    $btnHistory.style.background = showingHistory ? 'var(--border)' : 'transparent';
+  });
+
+  $btnRestart.addEventListener('click', restart);
+  $btnPlayAgain.addEventListener('click', restart);
+
+  // ─── Init ───
+  updateBest();
+  renderHistory();
+  if (history.length) $btnHistory.style.display = '';
+  buildGrid();
+</script>
+</body>
+</html>
