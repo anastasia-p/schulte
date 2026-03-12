@@ -273,13 +273,101 @@
     }
     .progress-fill.complete { background: var(--accent); }
 
+
+    /* ─── MENU SHEET ─── */
+    .sheet-overlay2 {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    .sheet-overlay2.open { opacity: 1; pointer-events: all; }
+    .sheet2 {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      z-index: 101;
+      transition: transform .3s cubic-bezier(.32,.72,0,1);
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+    }
+    .sheet2.open { transform: translateX(-50%) translateY(0); }
+    .menu-list { padding: 8px 0 32px; }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 20px;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 15px;
+      color: var(--text);
+      border-bottom: 1px solid #f0ece6;
+      transition: background .15s;
+    }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:active { background: #f4f2ee; }
+    .menu-icon { font-size: 20px; width: 28px; text-align: center; }
+    .menu-desc { font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 1px; }
+    .info-body {
+      max-height: 65vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+      padding: 16px 20px 32px;
+      line-height: 1.7;
+      font-size: 14px;
+      color: var(--text);
+    }
+    .info-body h3 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 20px 0 8px;
+      letter-spacing: 1px;
+    }
+    .info-body h3:first-child { margin-top: 0; }
+    .info-body p { margin-bottom: 10px; color: #444; }
+    .info-body ul { padding-left: 18px; margin-bottom: 10px; }
+    .info-body li { margin-bottom: 6px; color: #444; }
+    .feedback-btn {
+      display: block;
+      margin: 20px auto 0;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-decoration: none;
+      text-align: center;
+      transition: opacity .2s;
+    }
+    .feedback-btn:active { opacity: .8; }
+
     .footer-note {
       text-align: center;
       font-size: 9px;
       color: #ccc8c0;
       letter-spacing: 2px;
       text-transform: uppercase;
-      padding-bottom: 10px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
       flex-shrink: 0;
     }
   </style>
@@ -307,6 +395,7 @@
     </div>
     <div class="header-btns">
       <button class="btn-icon" id="btnHistory" style="display:none">📊</button>
+      <button class="btn-icon" id="btnMenu">☰</button>
       <button class="btn-icon btn-quit" id="btnQuit" style="display:none">✕ Выход</button>
       <button class="btn-icon" id="btnRestart">↺</button>
     </div>
@@ -362,6 +451,82 @@
   <div class="progress-wrap">
     <div class="progress-track">
       <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- MENU SHEET -->
+  <div class="sheet-overlay2" id="menuOverlay"></div>
+  <div class="sheet2" id="menuSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">Меню</div>
+      <button class="sheet-close" id="btnMenuClose">✕</button>
+    </div>
+    <div class="menu-list">
+      <button class="menu-item" id="btnOpenInfo">
+        <span class="menu-icon">📖</span>
+        <div>
+          <div>Как тренироваться</div>
+          <div class="menu-desc">Советы и техника работы с таблицей</div>
+        </div>
+      </button>
+      <button class="menu-item" id="btnOpenFeedback">
+        <span class="menu-icon">💬</span>
+        <div>
+          <div>Обратная связь</div>
+          <div class="menu-desc">Замечания и пожелания</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- INFO SHEET -->
+  <div class="sheet-overlay2" id="infoOverlay"></div>
+  <div class="sheet2" id="infoSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">Как тренироваться</div>
+      <button class="sheet-close" id="btnInfoClose">✕</button>
+    </div>
+    <div class="info-body">
+      <h3>Что такое таблица Шульте</h3>
+      <p>Таблица Шульте — классический тренажёр для развития периферийного зрения и скорочтения. Задача — находить числа от 1 до 25 как можно быстрее, не двигая головой.</p>
+
+      <h3>Главное правило</h3>
+      <p>Смотри в центр таблицы и ищи числа периферийным зрением. Не бегай взглядом по клеткам — это замедляет.</p>
+
+      <h3>Советы</h3>
+      <ul>
+        <li>Держи взгляд в центре экрана на протяжении всего упражнения</li>
+        <li>Не торопись — сначала важна техника, скорость придёт сама</li>
+        <li>Тренируйся регулярно: 5–10 минут в день дают результат уже через неделю</li>
+        <li>Делай 3–5 таблиц за сессию с небольшими паузами</li>
+      </ul>
+
+      <h3>Ориентиры по времени</h3>
+      <ul>
+        <li>Новичок — 50–60 секунд</li>
+        <li>Средний уровень — 35–45 секунд</li>
+        <li>Хороший результат — до 30 секунд</li>
+        <li>Профессионал — менее 25 секунд</li>
+      </ul>
+      <h3>Про историю результатов</h3>
+      <p style="color:var(--muted)">История хранится только на этом устройстве и может сброситься при очистке кэша Telegram. На другом устройстве она недоступна.</p>
+    </div>
+  </div>
+
+  <!-- FEEDBACK SHEET -->
+  <div class="sheet-overlay2" id="feedbackOverlay"></div>
+  <div class="sheet2" id="feedbackSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">Обратная связь</div>
+      <button class="sheet-close" id="btnFeedbackClose">✕</button>
+    </div>
+    <div class="info-body">
+      <p>Если у тебя есть замечания, пожелания или идеи — напиши напрямую. Читаю все сообщения и стараюсь отвечать.</p>
+      <p style="color:var(--muted);font-size:12px">Что стоит улучшить? Чего не хватает? Что понравилось?</p>
+      <a class="feedback-btn" href="https://t.me/Ponomareva_Anastasia" target="_blank">Написать в Telegram</a>
     </div>
   </div>
 
@@ -565,6 +730,42 @@
   $btnHistory.addEventListener('click', openHistory);
   $btnSheetClose.addEventListener('click', closeHistory);
   $sheetOverlay.addEventListener('click', closeHistory);
+
+
+  // ─── Menu ───
+  const $btnMenu        = document.getElementById('btnMenu');
+  const $menuSheet      = document.getElementById('menuSheet');
+  const $menuOverlay    = document.getElementById('menuOverlay');
+  const $btnMenuClose   = document.getElementById('btnMenuClose');
+  const $btnOpenInfo    = document.getElementById('btnOpenInfo');
+  const $btnOpenFeedback= document.getElementById('btnOpenFeedback');
+  const $infoSheet      = document.getElementById('infoSheet');
+  const $infoOverlay    = document.getElementById('infoOverlay');
+  const $btnInfoClose   = document.getElementById('btnInfoClose');
+  const $feedbackSheet  = document.getElementById('feedbackSheet');
+  const $feedbackOverlay= document.getElementById('feedbackOverlay');
+  const $btnFeedbackClose=document.getElementById('btnFeedbackClose');
+
+  const openSheet  = (sheet, overlay) => { sheet.classList.add('open'); overlay.classList.add('open'); };
+  const closeSheet = (sheet, overlay) => { sheet.classList.remove('open'); overlay.classList.remove('open'); };
+
+  $btnMenu.addEventListener('click', () => openSheet($menuSheet, $menuOverlay));
+  $btnMenuClose.addEventListener('click', () => closeSheet($menuSheet, $menuOverlay));
+  $menuOverlay.addEventListener('click', () => closeSheet($menuSheet, $menuOverlay));
+
+  $btnOpenInfo.addEventListener('click', () => {
+    closeSheet($menuSheet, $menuOverlay);
+    setTimeout(() => openSheet($infoSheet, $infoOverlay), 200);
+  });
+  $btnInfoClose.addEventListener('click', () => closeSheet($infoSheet, $infoOverlay));
+  $infoOverlay.addEventListener('click', () => closeSheet($infoSheet, $infoOverlay));
+
+  $btnOpenFeedback.addEventListener('click', () => {
+    closeSheet($menuSheet, $menuOverlay);
+    setTimeout(() => openSheet($feedbackSheet, $feedbackOverlay), 200);
+  });
+  $btnFeedbackClose.addEventListener('click', () => closeSheet($feedbackSheet, $feedbackOverlay));
+  $feedbackOverlay.addEventListener('click', () => closeSheet($feedbackSheet, $feedbackOverlay));
 
   $btnRestart.addEventListener('click', restart);
   $btnPlayAgain.addEventListener('click', restart);
