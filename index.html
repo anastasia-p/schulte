@@ -10,15 +10,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #090910;
-      --surface:   #0f0f1a;
-      --border:    #1c1c2e;
-      --text:      #ddd8cc;
-      --muted:     #3a3a55;
-      --accent:    #00e87a;
-      --gold:      #f5c842;
-      --danger:    #ff3a5c;
-      --cell-bg:   #111120;
+      --bg:        #f4f2ee;
+      --surface:   #ffffff;
+      --border:    #ddd9d0;
+      --text:      #1a1a2e;
+      --muted:     #999080;
+      --accent:    #1a9e5c;
+      --gold:      #c8920a;
+      --danger:    #d93050;
+      --cell-bg:   #ffffff;
+      --shadow:    0 1px 4px rgba(0,0,0,0.08);
     }
 
     html, body {
@@ -65,11 +66,13 @@
       color: var(--muted);
       padding: 7px 13px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-family: 'Share Tech Mono', monospace;
-      transition: border-color .2s, color .2s;
+      transition: border-color .2s, color .2s, background .2s;
     }
     .btn-icon:active { border-color: var(--accent); color: var(--accent); }
+    .btn-quit { color: var(--danger); border-color: #f0c0c8; }
+    .btn-quit:active { background: #fff0f2; border-color: var(--danger); }
     .header-btns { display: flex; gap: 8px; }
 
     /* ─── STATS BAR ─── */
@@ -84,10 +87,10 @@
     .stat { text-align: center; min-width: 70px; }
     .stat-label { font-size: 8px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 3px; }
     .stat-value { font-size: 22px; font-weight: bold; font-variant-numeric: tabular-nums; transition: color .3s; }
-    .stat-value.accent  { color: var(--accent); }
-    .stat-value.gold    { color: var(--gold); }
-    .stat-value.dim     { color: #2a2a40; }
-    .stat-value.muted   { color: var(--muted); }
+    .stat-value.accent { color: var(--accent); }
+    .stat-value.gold   { color: var(--gold); }
+    .stat-value.dim    { color: #ccc8c0; }
+    .stat-value.muted  { color: var(--muted); }
 
     /* ─── HINT ─── */
     .hint {
@@ -105,12 +108,12 @@
       margin: 10px 14px 0;
       padding: 12px 16px;
       border-radius: 12px;
-      background: #0d1a0d;
+      background: #f0faf4;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-shrink: 0;
-      border: 1px solid #1a3a1a;
+      border: 1px solid #b8e8cc;
     }
     .result-label { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
     .result-value { font-size: 16px; font-weight: bold; }
@@ -123,7 +126,7 @@
       font-family: 'Unbounded', sans-serif;
       font-weight: 700;
       letter-spacing: 1px;
-      color: #000;
+      color: #fff;
       background: var(--accent);
       transition: opacity .2s;
     }
@@ -136,6 +139,7 @@
       border-radius: 12px;
       overflow: hidden;
       flex-shrink: 0;
+      background: var(--surface);
     }
     .history-header {
       padding: 8px 14px;
@@ -150,12 +154,11 @@
       justify-content: space-between;
       align-items: center;
       padding: 7px 14px;
-      border-bottom: 1px solid #0e0e1a;
+      border-bottom: 1px solid #f0ece6;
       font-size: 13px;
     }
     .history-row:last-child { border-bottom: none; }
     .history-time-val { font-size: 15px; font-weight: bold; }
-    .history-best { color: var(--muted); font-size: 11px; }
 
     /* ─── GRID ─── */
     .grid-wrap {
@@ -169,44 +172,48 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 4px;
+      gap: 5px;
       width: 100%;
       max-width: 400px;
     }
     .cell {
       aspect-ratio: 1;
       background: var(--cell-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(15px, 4.5vw, 22px);
-      font-weight: bold;
+      font-size: clamp(20px, 6vw, 28px);
+      font-weight: 400;
+      font-family: 'Unbounded', sans-serif;
       color: var(--text);
       cursor: pointer;
       transition: background .12s, border-color .12s, color .12s, transform .1s;
       -webkit-tap-highlight-color: transparent;
       outline: none;
-      border: none;
       padding: 0;
+      box-shadow: var(--shadow);
     }
+    .cell:active { transform: scale(0.93); }
     .cell.flash {
-      background: #00e87a22;
-      border: 1px solid var(--accent);
+      background: #d4f5e4;
+      border-color: var(--accent);
       color: var(--accent);
       transform: scale(0.91);
+      box-shadow: 0 0 0 3px #1a9e5c22;
     }
     .cell.wrong {
-      background: #ff3a5c22;
-      border: 1px solid var(--danger);
+      background: #ffe0e6;
+      border-color: var(--danger);
       color: var(--danger);
       transform: scale(1.05);
     }
     .cell.done-state {
-      color: #1e1e30;
-      background: #0d0d18;
-      border: 1px solid #111120;
+      color: #ccc8c0;
+      background: #faf8f5;
+      border-color: #eae6e0;
+      box-shadow: none;
       cursor: default;
     }
 
@@ -216,8 +223,8 @@
       flex-shrink: 0;
     }
     .progress-track {
-      height: 3px;
-      background: #181828;
+      height: 4px;
+      background: #e8e4de;
       border-radius: 2px;
       overflow: hidden;
     }
@@ -232,7 +239,7 @@
     .footer-note {
       text-align: center;
       font-size: 9px;
-      color: #1c1c2e;
+      color: #ccc8c0;
       letter-spacing: 2px;
       text-transform: uppercase;
       padding-bottom: 10px;
@@ -251,6 +258,7 @@
     </div>
     <div class="header-btns">
       <button class="btn-icon" id="btnHistory" style="display:none">📊</button>
+      <button class="btn-icon btn-quit" id="btnQuit" style="display:none">✕ Выход</button>
       <button class="btn-icon" id="btnRestart">↺</button>
     </div>
   </div>
@@ -305,15 +313,9 @@
 </div>
 
 <script>
-  // ─── Telegram WebApp init ───
   const tg = window.Telegram?.WebApp;
-  if (tg) {
-    tg.ready();
-    tg.expand();
-    tg.disableVerticalSwipes?.();
-  }
+  if (tg) { tg.ready(); tg.expand(); tg.disableVerticalSwipes?.(); }
 
-  // ─── Utils ───
   const shuffle = arr => {
     const a = [...arr];
     for (let i = a.length - 1; i > 0; i--) {
@@ -334,39 +336,33 @@
 
   const getRating = ms => {
     const s = ms / 1000;
-    if (s < 25) return { label: '⚡ Феноменально', color: '#00e87a' };
-    if (s < 35) return { label: '🔥 Отлично',      color: '#7fff00' };
-    if (s < 45) return { label: '👍 Хорошо',       color: '#f5c842' };
-    if (s < 60) return { label: '🎯 Норма',         color: '#ff9500' };
-    return               { label: '💪 Тренируйся!', color: '#ff3a5c' };
+    if (s < 25) return { label: '⚡ Феноменально', color: '#1a9e5c' };
+    if (s < 35) return { label: '🔥 Отлично',      color: '#4a9e00' };
+    if (s < 45) return { label: '👍 Хорошо',       color: '#c8920a' };
+    if (s < 60) return { label: '🎯 Норма',         color: '#d07010' };
+    return               { label: '💪 Тренируйся!', color: '#d93050' };
   };
 
-  // ─── State ───
-  let grid = [];
-  let next = 1;
-  let status = 'idle'; // idle | playing | done
-  let startTime = null;
-  let elapsed = 0;
-  let timerRAF = null;
+  let grid = [], next = 1, status = 'idle';
+  let startTime = null, elapsed = 0, timerRAF = null;
   let history = JSON.parse(localStorage.getItem('schulte_history') || '[]');
   let showingHistory = false;
 
-  // ─── DOM ───
-  const $grid        = document.getElementById('grid');
-  const $statNext    = document.getElementById('statNext');
-  const $statTime    = document.getElementById('statTime');
-  const $statBest    = document.getElementById('statBest');
-  const $hint        = document.getElementById('hint');
-  const $resultBanner= document.getElementById('resultBanner');
-  const $resultText  = document.getElementById('resultText');
-  const $progressFill= document.getElementById('progressFill');
-  const $historyPanel= document.getElementById('historyPanel');
-  const $historyList = document.getElementById('historyList');
-  const $btnHistory  = document.getElementById('btnHistory');
-  const $btnRestart  = document.getElementById('btnRestart');
-  const $btnPlayAgain= document.getElementById('btnPlayAgain');
+  const $grid         = document.getElementById('grid');
+  const $statNext     = document.getElementById('statNext');
+  const $statTime     = document.getElementById('statTime');
+  const $statBest     = document.getElementById('statBest');
+  const $hint         = document.getElementById('hint');
+  const $resultBanner = document.getElementById('resultBanner');
+  const $resultText   = document.getElementById('resultText');
+  const $progressFill = document.getElementById('progressFill');
+  const $historyPanel = document.getElementById('historyPanel');
+  const $historyList  = document.getElementById('historyList');
+  const $btnHistory   = document.getElementById('btnHistory');
+  const $btnRestart   = document.getElementById('btnRestart');
+  const $btnQuit      = document.getElementById('btnQuit');
+  const $btnPlayAgain = document.getElementById('btnPlayAgain');
 
-  // ─── Render grid ───
   const buildGrid = () => {
     grid = shuffle(Array.from({length:25},(_,i)=>i+1));
     $grid.innerHTML = '';
@@ -374,7 +370,6 @@
       const btn = document.createElement('button');
       btn.className = 'cell';
       btn.textContent = num;
-      btn.dataset.idx = idx;
       btn.addEventListener('click', () => handleCell(num, idx));
       $grid.appendChild(btn);
     });
@@ -382,7 +377,6 @@
 
   const cells = () => [...$grid.querySelectorAll('.cell')];
 
-  // ─── Timer loop ───
   const tickTimer = () => {
     elapsed = Date.now() - startTime;
     $statTime.textContent = fmtTime(elapsed);
@@ -390,33 +384,27 @@
     timerRAF = requestAnimationFrame(tickTimer);
   };
 
-  // ─── Handle cell tap ───
   const handleCell = (num, idx) => {
     if (status === 'done') return;
-
     if (status === 'idle') {
-      if (num !== 1) {
-        // wrong first tap
-        flashCell(idx, 'wrong');
-        return;
-      }
+      if (num !== 1) { flashCell(idx, 'wrong'); return; }
       status = 'playing';
       startTime = Date.now();
       $hint.style.display = 'none';
+      $btnQuit.style.display = '';
       timerRAF = requestAnimationFrame(tickTimer);
     }
-
     if (num === next) {
       flashCell(idx, 'flash');
       next++;
-      updateNext();
-      updateProgress();
-
-      if (next > 25) {
-        finishGame();
-      }
+      $statNext.textContent = next <= 25 ? next : '✓';
+      $statNext.className = 'stat-value accent';
+      const pct = ((next - 1) / 25) * 100;
+      $progressFill.style.width = pct + '%';
+      if (next > 25) { $progressFill.classList.add('complete'); finishGame(); }
     } else {
       flashCell(idx, 'wrong');
+      if (tg) tg.HapticFeedback?.impactOccurred('light');
     }
   };
 
@@ -426,51 +414,25 @@
     setTimeout(() => cell.classList.remove(cls), cls === 'flash' ? 280 : 380);
   };
 
-  const updateNext = () => {
-    if (status === 'playing') {
-      $statNext.textContent = next;
-      $statNext.className = 'stat-value accent';
-    }
-  };
-
-  const updateProgress = () => {
-    const pct = ((next - 1) / 25) * 100;
-    $progressFill.style.width = pct + '%';
-    if (next > 25) $progressFill.classList.add('complete');
-  };
-
   const finishGame = () => {
     cancelAnimationFrame(timerRAF);
     status = 'done';
     const total = Date.now() - startTime;
-    elapsed = total;
-
     $statTime.textContent = fmtTime(total);
     $statTime.className = 'stat-value accent';
-    $statNext.textContent = '✓';
-    $statNext.className = 'stat-value accent';
-
-    // mark all cells done
     cells().forEach(c => c.classList.add('done-state'));
-
-    // save history
     history = [{ time: total, date: Date.now() }, ...history].slice(0, 10);
     localStorage.setItem('schulte_history', JSON.stringify(history));
-
+    $btnQuit.style.display = 'none';
     updateBest();
-    showResult(total);
-    renderHistory();
-
-    $btnHistory.style.display = '';
-    if (tg) tg.HapticFeedback?.notificationOccurred('success');
-  };
-
-  const showResult = total => {
     const r = getRating(total);
     $resultText.textContent = r.label;
     $resultText.style.color = r.color;
-    $resultBanner.style.borderColor = r.color + '44';
+    $resultBanner.style.borderColor = r.color + '55';
     $resultBanner.style.display = 'flex';
+    renderHistory();
+    $btnHistory.style.display = '';
+    if (tg) tg.HapticFeedback?.notificationOccurred('success');
   };
 
   const updateBest = () => {
@@ -482,58 +444,56 @@
 
   const renderHistory = () => {
     const best = history.length ? Math.min(...history.map(h => h.time)) : null;
-    $historyList.innerHTML = history.map((h, i) => {
+    $historyList.innerHTML = history.map(h => {
       const r = getRating(h.time);
       const isBest = h.time === best;
-      const d = new Date(h.date);
-      const timeStr = d.toLocaleTimeString('ru', {hour:'2-digit', minute:'2-digit'});
-      return `
-        <div class="history-row">
-          <span style="color:var(--muted);font-size:11px">${timeStr}</span>
-          <span class="history-time-val" style="color:${isBest ? 'var(--accent)' : 'var(--text)'}">
-            ${isBest ? '★ ' : ''}${fmtTime(h.time)}
-          </span>
-          <span style="color:${r.color};font-size:11px">${r.label.split(' ').slice(1).join(' ')}</span>
-        </div>`;
+      const timeStr = new Date(h.date).toLocaleTimeString('ru', {hour:'2-digit', minute:'2-digit'});
+      return `<div class="history-row">
+        <span style="color:var(--muted);font-size:11px">${timeStr}</span>
+        <span class="history-time-val" style="color:${isBest ? 'var(--accent)' : 'var(--text)'}">
+          ${isBest ? '★ ' : ''}${fmtTime(h.time)}
+        </span>
+        <span style="color:${r.color};font-size:11px">${r.label.split(' ').slice(1).join(' ')}</span>
+      </div>`;
     }).join('');
   };
 
-  // ─── Restart ───
-  const restart = () => {
-    cancelAnimationFrame(timerRAF);
-    next = 1;
-    status = 'idle';
-    elapsed = 0;
-    startTime = null;
-    showingHistory = false;
-
-    $statNext.textContent = '—';
-    $statNext.className = 'stat-value dim';
-    $statTime.textContent = '—';
-    $statTime.className = 'stat-value dim';
+  const resetUI = () => {
+    $statNext.textContent = '—'; $statNext.className = 'stat-value dim';
+    $statTime.textContent = '—'; $statTime.className = 'stat-value dim';
     $hint.style.display = '';
     $resultBanner.style.display = 'none';
     $historyPanel.style.display = 'none';
     $progressFill.style.width = '0%';
     $progressFill.classList.remove('complete');
-
-    updateBest();
-    buildGrid();
+    $btnQuit.style.display = 'none';
+    showingHistory = false;
   };
 
-  // ─── Toggle history ───
+  const restart = () => {
+    cancelAnimationFrame(timerRAF);
+    next = 1; status = 'idle'; elapsed = 0; startTime = null;
+    resetUI(); updateBest(); buildGrid();
+  };
+
+  // Выход — сбрасывает без сохранения результата
+  $btnQuit.addEventListener('click', () => {
+    if (status !== 'playing') return;
+    cancelAnimationFrame(timerRAF);
+    next = 1; status = 'idle'; elapsed = 0; startTime = null;
+    resetUI(); buildGrid();
+  });
+
   $btnHistory.addEventListener('click', () => {
     showingHistory = !showingHistory;
     $historyPanel.style.display = showingHistory ? '' : 'none';
-    $btnHistory.style.background = showingHistory ? 'var(--border)' : 'transparent';
+    $btnHistory.style.background = showingHistory ? '#f0ece6' : 'transparent';
   });
 
   $btnRestart.addEventListener('click', restart);
   $btnPlayAgain.addEventListener('click', restart);
 
-  // ─── Init ───
-  updateBest();
-  renderHistory();
+  updateBest(); renderHistory();
   if (history.length) $btnHistory.style.display = '';
   buildGrid();
 </script>
