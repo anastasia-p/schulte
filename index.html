@@ -405,6 +405,10 @@
       $hint.style.display = 'none';
       $btnQuit.style.display = '';
       timerRAF = requestAnimationFrame(tickTimer);
+      ym(107322341, 'reachGoal', 'start');
+      ym(107322341, 'reachGoal', 'start');
+      ym(107322341, 'reachGoal', 'start');
+      ym(107322341, 'reachGoal', 'start');
     }
     if (num === next) {
       flashCell(idx, 'flash');
@@ -436,6 +440,7 @@
     history = [{ time: total, date: Date.now() }, ...history].slice(0, 10);
     localStorage.setItem('schulte_history', JSON.stringify(history));
     $btnQuit.style.display = 'none';
+    ym(107322341, 'reachGoal', 'finish');
     updateBest();
     const r = getRating(total);
     $resultText.textContent = r.label;
@@ -445,6 +450,7 @@
     renderHistory();
     $btnHistory.style.display = '';
     if (tg) tg.HapticFeedback?.notificationOccurred('success');
+    ym(107322341, 'reachGoal', 'finish');
   };
 
   const updateBest = () => {
@@ -494,12 +500,14 @@
     cancelAnimationFrame(timerRAF);
     next = 1; status = 'idle'; elapsed = 0; startTime = null;
     resetUI(); buildGrid();
+    ym(107322341, 'reachGoal', 'quit');
   });
 
   $btnHistory.addEventListener('click', () => {
     showingHistory = !showingHistory;
     $historyPanel.style.display = showingHistory ? '' : 'none';
     $btnHistory.style.background = showingHistory ? '#f0ece6' : 'transparent';
+    if (showingHistory) ym(107322341, 'reachGoal', 'history');
   });
 
   $btnRestart.addEventListener('click', restart);
